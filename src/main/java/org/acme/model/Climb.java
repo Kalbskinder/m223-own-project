@@ -22,6 +22,11 @@ public class Climb {
     @JoinColumn(name = "route_id", nullable = false)
     private ClimbingRoute route;
 
+    // Foreign key column "owner_id" -> climber.id: the user who logged the climb.
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Climber owner;
+
     @Column(nullable = false)
     private int attempts;
 

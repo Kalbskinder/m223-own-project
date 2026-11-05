@@ -21,8 +21,12 @@ public class ClimbingRoute {
     @JoinColumn(name = "gym_id", nullable = false)
     private ClimbingGym gym;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // Foreign key column "owner_id" -> climber.id: the user who created the route.
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Climber owner;
+
+    @Column(nullable = false)
     private String grade;
 
     @Column(nullable = false)
