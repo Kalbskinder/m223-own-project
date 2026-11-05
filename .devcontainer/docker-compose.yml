@@ -1,0 +1,52 @@
+volumes:
+  postgres-data:
+  pgadmin-data:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VARIANT: 25-trixie
+    environment:
+      # Read by src/main/resources/application.properties.
+      # NOTE: must match the values of the db service below.
+      POSTGRES_HOSTNAME: localhost
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: climbtracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ..:/workspace:cached
+    # Keeps the container running so VS Code can attach.
+    command: sleep infinity
+    # Shares the db container's network, so Postgres is reachable on localhost:5432
+    # and "forwardPorts" in devcontainer.json works.
+    network_mode: service:db
+
+  db:
+    image: postgres:18.6
+    restart: unless-stopped
+    volumes:
+      # PostgreSQL 18 stores its data in a version-specific directory below this mount.
+      - postgres-data:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: climbtracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  pgadmin:
+    image: dpage/pgadmin4:9.18
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: zli@example.com
+      PGADMIN_DEFAULT_PASSWORD: zli*123
+      # Skip the master password prompt; this is a local dev setup.
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
