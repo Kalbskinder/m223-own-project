@@ -14,9 +14,13 @@ public class ClimbingRoute {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Id 
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String grade;
 
     @Column(nullable = false)
     private String color; // color in hex
+
+    @Column(nullable = false)
+    private boolean active;
 }
