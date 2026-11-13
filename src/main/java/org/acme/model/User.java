@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Entity 
 @Data 
-public class Climber {
+public class User {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

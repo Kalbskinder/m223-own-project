@@ -1,6 +1,6 @@
 package org.acme.dto;
 
-import org.acme.model.Climber;
+import org.acme.model.User;
 
 import jakarta.validation.constraints.NotBlank;
 
@@ -14,8 +14,8 @@ public record UserCredentialsDto(
     /**
      * @param passwordHash the already hashed password; never store {@link #password()} as is
      */
-    public Climber toEntity(String passwordHash) {
-        Climber user = new Climber();
+    public User toEntity(String passwordHash) {
+        User user = new User();
         user.setUsername(username);
         user.setPassword(passwordHash);
         return user;

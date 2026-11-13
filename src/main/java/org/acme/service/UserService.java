@@ -7,7 +7,7 @@ import java.util.Set;
 import org.acme.dto.LoginResponseDto;
 import org.acme.dto.UserCredentialsDto;
 import org.acme.dto.UserDto;
-import org.acme.model.Climber;
+import org.acme.model.User;
 import org.acme.repository.UserRepository;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.wildfly.security.password.Password;
@@ -40,13 +40,13 @@ public class UserService {
             throw new ClientErrorException("Username already taken", Response.Status.CONFLICT);
         }
         // Only the BCrypt hash is stored, never the plain password.
-        Climber user = credentials.toEntity(BcryptUtil.bcryptHash(credentials.password()));
+        User user = credentials.toEntity(BcryptUtil.bcryptHash(credentials.password()));
         userRepository.persist(user);
         return UserDto.from(user);
     }
 
     public LoginResponseDto login(UserCredentialsDto credentials) {
-        Climber user = userRepository.find("username", credentials.username())
+        User user = userRepository.find("username", credentials.username())
                 .firstResultOptional()
                 // Same error for unknown user and wrong password, so nobody can probe for usernames.
                 .filter(u -> passwordMatches(credentials.password(), u.getPassword()))
@@ -54,7 +54,7 @@ public class UserService {
         return new LoginResponseDto(createToken(user), UserDto.from(user));
     }
 
-    private String createToken(Climber user) {
+    private String createToken(User user) {
         return Jwt.issuer(issuer)
                 .subject(String.valueOf(user.getId()))   // read back by CurrentUser.id()
                 .upn(user.getUsername())
