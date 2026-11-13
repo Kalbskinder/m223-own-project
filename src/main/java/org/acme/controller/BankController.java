@@ -5,6 +5,7 @@ import org.acme.dto.BankAccountDto;
 import org.acme.dto.TransferDto;
 import org.acme.security.CurrentUser;
 import org.acme.service.BankService;
+import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -23,10 +24,14 @@ import jakarta.ws.rs.core.MediaType;
 public class BankController {
 
     @Inject
-    CurrentUser currentUser;
+    private CurrentUser currentUser;
+
+    @Inject 
+    private JsonWebToken jwt;
+
 
     @Inject
-    BankService bankService;
+    private BankService bankService;
 
     /** The logged-in user's account. */
     @GET
