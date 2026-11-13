@@ -167,6 +167,10 @@ public class Book {
 	)
 	private List<Author> authors;
 	
+	@ManyToOne
+	@JoinColumn(name = "borrower_id")
+	private User borrower;
+	
 		// getters & setters...
 	
 	public static BookDto toDto(Book book) {
@@ -233,9 +237,9 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 	
-	@Column
-	// TODO: We might need a join column here, not sure tho, @OneToMany maybe
-	private List<BookDto> lendBooks;
+	@OneToMany(mappedBy = "borrower")
+	private List<Book> lendBooks;
+
 }
 
 public class UserDto {
@@ -251,3 +255,13 @@ public class UserDto {
 		return dto;
 	}
 }
+
+public record UserCredentialsDto (
+	private String password,
+	private String username
+) {}
+
+public record LoginResponseDto(
+	String token,
+	UserDto user
+) {}
