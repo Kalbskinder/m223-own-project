@@ -48,6 +48,8 @@ body {
 h1 { font-size: 1.4rem; margin: 0; }
 h2 { font-size: 1.1rem; margin: 0 0 12px; }
 
+.small { font-size: 0.85rem; }
+
 /* ---------- Header ---------- */
 
 .topbar {
@@ -62,25 +64,11 @@ h2 { font-size: 1.1rem; margin: 0 0 12px; }
 
 .brand { font-weight: 700; }
 
-nav { display: flex; gap: 4px; flex-wrap: wrap; }
-
-.tab {
-  background: none;
-  color: var(--text);
-  border: 1px solid transparent;
-  padding: 6px 12px;
-}
-.tab[aria-current="page"] {
-  border-color: var(--border);
-  background: var(--bg);
-  font-weight: 600;
-}
-
 .user-box { margin-left: auto; color: var(--muted); }
 
 /* ---------- Layout ---------- */
 
-main { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; }
+main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
 
 .view.narrow { max-width: 380px; margin: 40px auto 0; }
 .view.narrow h1 { margin-bottom: 16px; }
@@ -108,7 +96,9 @@ main { max-width: 1000px; margin: 0 auto; padding: 24px 16px 48px; }
 label { display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; color: var(--muted); }
 label.check { flex-direction: row; align-items: center; gap: 6px; color: var(--text); }
 
-#auth-form { display: flex; flex-direction: column; gap: 12px; }
+#auth-form, #withdraw-form, #transfer-form { display: flex; flex-direction: column; gap: 12px; }
+#withdraw-form h2, #transfer-form h2 { margin: 0; }
+#withdraw-form .actions, #transfer-form .actions { margin-top: auto; }
 
 .fields {
   display: grid;
@@ -149,6 +139,7 @@ button {
 button.secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
 button.small { padding: 3px 9px; font-size: 0.85rem; }
 button.danger { background: var(--surface); color: var(--danger); border-color: var(--border); }
+button:disabled { opacity: 0.6; cursor: wait; }
 button.link {
   background: none;
   border: none;
@@ -157,18 +148,18 @@ button.link {
   text-decoration: underline;
 }
 
-/* ---------- Filters ---------- */
+/* ---------- Account ---------- */
 
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  gap: 12px 20px;
-  padding: 12px 0;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--border);
+.balance-card { display: flex; flex-direction: column; gap: 2px; }
+.balance { font-size: 2.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0 20px;
 }
-.filters select, .filters input:not([type]) { width: 180px; }
+
+.quick { display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* ---------- Tables ---------- */
 
@@ -177,28 +168,8 @@ button.link {
 table { width: 100%; border-collapse: collapse; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 th { font-size: 0.85rem; font-weight: 600; color: var(--muted); }
-td.right, th.right { text-align: right; }
-td .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
-
-.swatch {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border-radius: 3px;
-  border: 1px solid var(--border);
-  vertical-align: middle;
-  margin-right: 6px;
-}
-
-.badge {
-  display: inline-block;
-  font-size: 0.8rem;
-  padding: 1px 8px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-}
-.badge.on { color: var(--ok-text); background: var(--ok-bg); border-color: transparent; }
+td.right, th.right { text-align: right; font-variant-numeric: tabular-nums; }
+td.negative { color: var(--danger); }
 
 /* ---------- Messages ---------- */
 

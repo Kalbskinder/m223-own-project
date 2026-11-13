@@ -27,6 +27,7 @@ import jakarta.ws.rs.core.Response;
 @ApplicationScoped
 public class UserService {
     @Inject private UserRepository userRepository;
+    @Inject BankService bankService;
 
     @ConfigProperty(name = "climbtracker.jwt.issuer")
     String issuer;
@@ -42,6 +43,8 @@ public class UserService {
         // Only the BCrypt hash is stored, never the plain password.
         User user = credentials.toEntity(BcryptUtil.bcryptHash(credentials.password()));
         userRepository.persist(user);
+        // Every new user gets an account with the starting balance (same transaction).
+        bankService.openAccount(user);
         return UserDto.from(user);
     }
 

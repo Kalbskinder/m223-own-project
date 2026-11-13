@@ -2,6 +2,7 @@ package org.acme.service;
 
 import org.acme.dto.BankAccountDto;
 import org.acme.model.BankAccount;
+import org.acme.model.User;
 import org.acme.repository.BankAccountRepository;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -10,16 +11,29 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 
-@ApplicationScoped 
+@ApplicationScoped
 public class BankService {
 
-    @Inject 
-    private BankAccountRepository bankAccountRepository;
+    /** Every new user starts with this amount (CHF). */
+    public static final double STARTING_BALANCE = 1000;
+
+    @Inject
+    BankAccountRepository bankAccountRepository;
+
+    /** Opens the account for a newly registered user. */
+    @Transactional
+    public BankAccount openAccount(User owner) {
+        BankAccount account = new BankAccount();
+        account.setAccountOwner(owner);
+        account.setMoney(STARTING_BALANCE);
+        account.setInterestRate(0);
+        bankAccountRepository.persist(account);
+        return account;
+    }
 
     public double getBalance(Long userId) {
-        BankAccount account = getBankAccount(userId);
-        return account.getMoney();
-    }   
+        return getBankAccount(userId).getMoney();
+    }
 
     public BankAccount getBankAccount(Long userId) {
         return bankAccountRepository.find("accountOwner.id", userId)
@@ -27,32 +41,37 @@ public class BankService {
             .orElseThrow(() -> new NotFoundException("No bank account for this user"));
     }
 
-    @Transactional 
+    private BankAccount getBankAccountByUsername(String username) {
+        return bankAccountRepository.find("accountOwner.username", username)
+            .firstResultOptional()
+            .orElseThrow(() -> new NotFoundException("No bank account for user " + username));
+    }
+
+    @Transactional
     public BankAccountDto withdraw(Long userId, double amount) {
-        var bal = getBalance(userId);
-        withDrawCheck(bal, amount);
-
-        var account = getBankAccount(userId);
-        account.setMoney(bal - amount);
-
+        BankAccount account = getBankAccount(userId);
+        withdrawCheck(account.getMoney(), amount);
+        account.setMoney(account.getMoney() - amount);
         return BankAccountDto.from(account);
     }
 
-    @Transactional 
-    public BankAccountDto transfer(Long ownerId, Long targetId, double amount) {
-        if (targetId == ownerId) throw new BadRequestException("Cannot transfer money to the same account");
-        var ownerBankAccount = getBankAccount(ownerId);
-        var targetBankAccount = getBankAccount(targetId);
-        withDrawCheck(ownerBankAccount.getMoney(), amount);
+    @Transactional
+    public BankAccountDto transfer(Long ownerId, String targetUsername, double amount) {
+        BankAccount ownerBankAccount = getBankAccount(ownerId);
+        BankAccount targetBankAccount = getBankAccountByUsername(targetUsername);
+        // Compare the ids with equals(): == on Long compares object references, not values.
+        if (ownerBankAccount.getId().equals(targetBankAccount.getId())) {
+            throw new BadRequestException("Cannot transfer money to the same account");
+        }
+        withdrawCheck(ownerBankAccount.getMoney(), amount);
 
         ownerBankAccount.setMoney(ownerBankAccount.getMoney() - amount);
         targetBankAccount.setMoney(targetBankAccount.getMoney() + amount);
         return BankAccountDto.from(ownerBankAccount);
     }
 
-    private void withDrawCheck(double totalMoney, double withdrawAmount) {
+    private void withdrawCheck(double totalMoney, double withdrawAmount) {
         if (withdrawAmount <= 0) throw new BadRequestException("Amount must be positive");
-        if ((totalMoney - withdrawAmount) < 0) throw new BadRequestException("Not enough money");
-
+        if (totalMoney < withdrawAmount) throw new BadRequestException("Not enough money");
     }
 }
